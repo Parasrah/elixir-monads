@@ -46,7 +46,7 @@ defmodule Monad.Result do
     %Result{status: :ok, value: "hello"}
 
   """
-  @spec ok(value :: any) :: BlogCore.Result.t
+  @spec ok(any()) :: Monad.Result.t()
   def ok(value), do: %Result{status: :ok, value: value}
 
   @doc """
@@ -58,12 +58,26 @@ defmodule Monad.Result do
     %Result{status: :error, value: "hello"}
 
   """
-  @spec err(value :: any) :: BlogCore.Result.t
+  @spec err(any()) :: Monad.Result.t()
   def err(value), do: %Result{status: :error, value: value}
+
+  @doc """
+  Similar to and_then, but performs operation on `:error`
+
+  ## Examples
+  
+  iex> Result.err("I had an issue") |> Result.map_err(&(Result.ok(&1 <> " with being too awesome")))
+  %Result{status: :ok, value: "I had an issue with being too awesome"}
+
+  """
+  @spec map_err(Monad.Result.t(), (Monad.Result.t() -> Monad.Result.t())) :: Monad.Result.t()
+  def map_err(%Result{status: :ok} = result, _), do: result
+  def map_err(%Result{status: :error, value: value}, op), do: Result.from(op.(value))
 
   defimpl Monad, for: Result do
     def and_then(%Result{status: :ok, value: value}, op), do: Result.from(op.(value))
     def and_then(%Result{status: :error} = result, _), do: result
+    def and_then(other, op), do: Result.and_then(Result.from(other), op)
 
     def unwrap(%Result{status: status, value: value}), do: {status, value}
   end
