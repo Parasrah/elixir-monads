@@ -25,6 +25,7 @@ defmodule Monad.Maybe do
 
     iex> Maybe.from(Maybe.from(nil))
     %Maybe{value: nil}
+
   """
   def from(nil), do: %Maybe{value: nil}
   def from(%Maybe{} = maybe), do: maybe
@@ -35,5 +36,8 @@ defmodule Monad.Maybe do
     def and_then(%Maybe{value: value}, op), do: Maybe.from(op.(value))
 
     def unwrap(%Maybe{value: value}), do: value
+
+    def map(%Maybe{value: nil} = maybe, _), do: maybe
+    def map(%Maybe{value: value}, op), do: Maybe.from(op.(value))
   end
 end

@@ -24,4 +24,16 @@ defprotocol Monad do
   """
   @spec unwrap(t()) :: any()
   def unwrap(monad)
+
+  @doc """
+  Map the inner value of a monad
+
+  ## Examples
+
+  iex> Monad.Maybe.from("Elixir is") |> Monad.map(&(&1 <> " awesome!"))
+  %Monad.Maybe{value: "Elixir is awesome!"}
+
+  """
+  @spec map(t(), (any() -> any())) :: t()
+  def map(monad, op)
 end
