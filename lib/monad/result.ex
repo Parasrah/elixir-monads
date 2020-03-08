@@ -78,6 +78,25 @@ defmodule Monad.Result do
   def err(value), do: %Result{status: :error, value: value}
 
   @doc """
+  Convert a result to a `Maybe`
+
+  ## Examples
+  
+    iex> Result.from_maybe(Monad.Maybe.from(nil), "could not find user")
+    %Result{status: :error, value: "could not find user"}
+
+    iex> Result.from_maybe(Monad.Maybe.from("parasrah"), "could not find user")
+    %Result{status: :ok, value: "parasrah"}
+  """
+  @spec from_maybe(Monad.Maybe.t(), String.t()) :: Result.t()
+  def from_maybe(maybe, error_value) do
+    case Monad.unwrap(maybe) do
+      nil -> err(error_value)
+      ok_value -> ok(ok_value)
+    end
+  end
+
+  @doc """
   Similar to and_then, but performs operation on `:error`
 
   ## Examples
