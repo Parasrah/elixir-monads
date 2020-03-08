@@ -3,9 +3,9 @@ defmodule Monad.Result do
   A `Result` monad modeled after Elm's Result type
   """
 
-  @type t :: %__MODULE__{
+  @opaque t() :: %__MODULE__{
     status: :ok | :error,
-    value: any
+    value: term()
   }
   defstruct status: :error, value: nil
 
@@ -35,7 +35,7 @@ defmodule Monad.Result do
     %Result{status: :error, value: "attempted to create a result from 'not a result'. Please use `Result.ok` or `Result.err` to create results in this way"}
 
   """
-  @spec from(value :: any) :: BlogCore.Result.t
+  @spec from({:ok, term()} | {:error, term()} | t()) :: t()
   def from({:ok, %Result{} = value}), do: ok(value)
   def from({:ok, value}), do: ok(value)
   def from({:error, %Result{} = value}), do: err(value)
@@ -55,7 +55,7 @@ defmodule Monad.Result do
     %Result{status: :ok, value: "hello"}
 
   """
-  @spec ok(any()) :: Monad.Result.t()
+  @spec ok(term()) :: t()
   def ok(%Result{status: :ok} = result), do: result
   def ok(%Result{status: :error}), do: raise "attempted to create `ok` result from `error` result"
   def ok(value), do: %Result{status: :ok, value: value}
@@ -72,7 +72,7 @@ defmodule Monad.Result do
     %Result{status: :error, value: "hello"}
 
   """
-  @spec err(any()) :: Monad.Result.t()
+  @spec err(term()) :: t()
   def err(%Result{status: :error} = result), do: result
   def err(%Result{status: :ok}), do: raise "attempted to create `error` result from `ok` result"
   def err(value), do: %Result{status: :error, value: value}
@@ -88,7 +88,7 @@ defmodule Monad.Result do
     iex> Result.from_maybe(Monad.Maybe.from("parasrah"), "could not find user")
     %Result{status: :ok, value: "parasrah"}
   """
-  @spec from_maybe(Monad.Maybe.t(), String.t()) :: Result.t()
+  @spec from_maybe(Monad.Maybe.t(), String.t()) :: t()
   def from_maybe(maybe, error_value) do
     case Monad.unwrap(maybe) do
       nil -> err(error_value)
@@ -105,7 +105,7 @@ defmodule Monad.Result do
     %Result{status: :ok, value: "I had an issue with being too awesome"}
 
   """
-  # @spec map_err(Monad.Result.t(), (Monad.Result.t() -> Monad.Result.t())) :: Monad.Result.t()
+  @spec map_err(t(), (t() -> t())) :: t()
   def map_err(%Result{status: :ok} = result, _), do: result
   def map_err(%Result{status: :error, value: value}, op), do: Result.from(op.(value))
 

@@ -3,8 +3,8 @@ defmodule Monad.Maybe do
   A `Maybe` monad modeled after Elm's Maybe type
   """
 
-  @type t :: %__MODULE__{
-    value: nil | any
+  @opaque t() :: %__MODULE__{
+    value: nil | term()
   }
   defstruct value: nil
 
@@ -27,6 +27,7 @@ defmodule Monad.Maybe do
     %Maybe{value: nil}
 
   """
+  @spec from(t() | term() | nil) :: t()
   def from(nil), do: %Maybe{value: nil}
   def from(%Maybe{} = maybe), do: maybe
   def from(value), do: %Maybe{value: value}

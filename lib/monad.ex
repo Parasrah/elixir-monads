@@ -22,7 +22,7 @@ defprotocol Monad do
     "we know"
 
   """
-  @spec unwrap(t()) :: any()
+  @spec unwrap(t()) :: term()
   def unwrap(monad)
 
   @doc """
@@ -34,6 +34,6 @@ defprotocol Monad do
   %Monad.Maybe{value: "Elixir is awesome!"}
 
   """
-  @spec map(t(), (any() -> any())) :: t()
+  @spec map(t(), (term() -> term())) :: t()
   def map(monad, op)
 end
