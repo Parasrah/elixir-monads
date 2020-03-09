@@ -41,7 +41,12 @@ defmodule Monad.Result do
   def from({:error, %Result{} = value}), do: err(value)
   def from({:error, value}), do: err(value)
   def from(%Result{} = result), do: result
-  def from(input), do: %Result{status: :error, value: "attempted to create a result from '" <> input <> "'. Please use `Result.ok` or `Result.err` to create results in this way"}
+  def from(input) do
+    case String.Chars.impl_for(input) do
+      nil -> raise "failed to create result. Maybe try `Result.ok/1` or `Result.err/1`."
+      input -> raise "attempted to create a result from '#{input}'. Please use `Result.ok` or `Result.err` to create results in this way"
+    end
+  end
 
   @doc """
   Convert a value to an `ok` result
@@ -112,7 +117,7 @@ defmodule Monad.Result do
   defimpl Monad, for: Result do
     def and_then(%Result{status: :ok, value: value}, op), do: Result.from(op.(value))
     def and_then(%Result{status: :error} = result, _), do: result
-    def and_then(other, op), do: Result.and_then(Result.from(other), op)
+    def and_then(_, _), do: raise "`and_then` expects a result"
 
     def unwrap(%Result{status: status, value: value}), do: {status, value}
 
