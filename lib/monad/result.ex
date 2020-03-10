@@ -101,6 +101,14 @@ defmodule Monad.Result do
     end
   end
 
+  def and_then(%Result{status: :error} = result, _, _), do: result
+  def and_then(%Result{status: :ok, value: value}, op, error_override) do
+    case from(op.(value)) do
+      %Result{status: :error} -> err(error_override)
+      %Result{status: :ok, value: value} -> ok(value)
+    end
+  end
+
   @doc """
   Similar to and_then, but performs operation on `:error`
 

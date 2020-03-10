@@ -9,6 +9,7 @@ defmodule Monad.Maybe do
   defstruct value: nil
 
   alias Monad.Maybe
+  alias Monad.Result
 
   @doc """
   Convert an elixir 'maybe' to a `%Maybe` monad
@@ -30,6 +31,10 @@ defmodule Monad.Maybe do
   @spec from(t() | term() | nil) :: t()
   def from(nil), do: %Maybe{value: nil}
   def from(%Maybe{} = maybe), do: maybe
+  def from(%Result{status: :error}), do: from(nil)
+  def from(%Result{status: :ok, value: value}), do: %Maybe{value: value}
+  def from({:error, _}), do: from(nil)
+  def from({:ok, value}), do: from(value)
   def from(value), do: %Maybe{value: value}
 
   defimpl Monad, for: Maybe do
